@@ -1,0 +1,38 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.ap-southeast-1.amazonaws.com
+      - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.ap-southeast-1.amazonaws.com/myhealth
+      - IMAGE_REPO_NAME=myhealth
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker build -t $IMAGE_REPO_NAME:latest .
+      - docker tag $IMAGE_REPO_NAME:latest $IMAGE_REPO_NAME:$IMAGE_TAG
+      
+  post_build:
+    commands:      
+      - echo Build started on `date`
+      - echo Pushing the Docker images...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:latest
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - printf '[{"name":"hello-world","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imageDetail.json
+      - echo ZIP taskdef.json
+      - zip $IMAGE_REPO_NAME-taskdef.zip taskdef.json
+      - echo ZIP appspec.yml
+      - zip $IMAGE_REPO_NAME-appspec.zip appspec.yml
+      - echo push zip files to S3
+      - aws s3 mv $IMAGE_REPO_NAME-appspec.zip s3://myhealth-vitalsign
+      - aws s3 mv $IMAGE_REPO_NAME-taskdef.zip s3://myhealth-vitalsign
+      - echo Build completed on $(date +%d-%m-%Y)
+
+artifacts:
+  files:
+    - imageDetail.json

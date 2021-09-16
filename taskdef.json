@@ -1,0 +1,17 @@
+{
+    "executionRoleArn": "arn:aws:iam::$AWS_ACCOUNT_ID:role/myHealth-vitalsign-ecs-role",
+    "containerDefinitions": [
+        {
+            "name": "MyHealth VitalSign",
+            "image": "<IMAGE1_NAME>",
+            "essential": true
+        }
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "networkMode": "awsvpc",
+    "cpu": "512",
+    "memory": "1024",
+    "family": "myhealth-vitalsign"
+}
