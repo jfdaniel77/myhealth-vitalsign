@@ -7,6 +7,16 @@ from datetime import datetime, date
 from json import dumps, loads
 from random import randrange, randint, uniform
 from time import time
+from botocore.config import Config
+
+my_config = Config(
+    region_name = 'ap-southeast-1',
+    signature_version = 'v4',
+    retries = {
+        'max_attempts': 10,
+        'mode': 'standard'
+    }
+)
 
 # Constants
 LOGPREFIX = "myHealth"
@@ -71,7 +81,7 @@ def main():
     
 def get_parameter_value(key):
     print("{} - Get Parameter key: {}".format(LOGPREFIX, key))
-    ssm_client = boto3.client("ssm")
+    ssm_client = boto3.client("ssm", config=my_config)
     value = ssm_client.get_parameter(Name=key, WithDecryption=False)
     return value.get("Parameter").get("Value")
     
