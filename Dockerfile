@@ -7,4 +7,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY listener.py .
 
-CMD [ "python", "./listener.py" ]
+ENTRYPOINT [ "python", "./listener.py" ]
