@@ -77,7 +77,7 @@ def main():
     rc = 0
     while rc == 0:
         rc = mqttc.loop()
-        # print("rc: " + str(rc))
+        print("rc: " + str(rc))
     
 def get_parameter_value(key):
     print("{} - Get Parameter key: {}".format(LOGPREFIX, key))
@@ -94,13 +94,8 @@ def store_data(payload):
     mdb_client = pymongo.MongoClient(mongodb_url)
     db = mdb_client['myhealth']
     vitalsign = db['vitalsign']
-    vitalsign_id = vitalsign.insert_one(payload)
-    
-    response_payload = {
-        "id": str(vitalsign_id.inserted_id)
-    }
-    
-    return response_payload
+    vitalsign_id = vitalsign.insert_one(loads(payload))
+    return None
 
 if __name__ == "__main__":
     print("Listener to mqtt channel is starting...")
