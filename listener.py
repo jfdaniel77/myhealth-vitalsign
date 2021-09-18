@@ -51,13 +51,9 @@ mqttc.on_subscribe = on_subscribe
 
 def main():
     # Connect
-    # url_str = get_parameter_value("serverless-mqtt-url")
-    # url = urlparse(url_str)
-    # mqttc.username_pw_set(get_parameter_value("serverless-mqtt-user"), get_parameter_value("serverless-mqtt-pwd"))
-    
-    url_str = "mqtt://driver.cloudmqtt.com:18798"
+    url_str = get_parameter_value("serverless-mqtt-url")
     url = urlparse(url_str)
-    mqttc.username_pw_set("myhealth-dummy", "IlmGE1qYhsIMixZpcj3QB5TK")
+    mqttc.username_pw_set(get_parameter_value("serverless-mqtt-user"), get_parameter_value("serverless-mqtt-pwd"))
     
     mqttc.connect(url.hostname, url.port)
     print("{} - Connection has been established.".format(LOGPREFIX))
