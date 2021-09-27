@@ -36,6 +36,9 @@ def on_message(client, obj, msg):
     print("{} - On Message - msg payload: {}".format(LOGPREFIX, msg.payload))
     store_data(msg.payload)
     
+    if datetime.now().minute < 10:
+        send_data_to_queue(msg.payload)
+    
 def on_publish(client, obj, mid):
     print("{} - On Publish - client: {}".format(LOGPREFIX, client))
     print("{} - On Publish - obj: {}".format(LOGPREFIX, obj))
@@ -96,6 +99,14 @@ def store_data(payload):
     vitalsign = db['vitalsign']
     vitalsign_id = vitalsign.insert_one(loads(payload))
     return None
+    
+def send_data_to_queue(payload):
+    print("{} - Send Data to SQS Queue".format(LOGPREFIX))
+    
+    queue_url = get_parameter_value('serverless-alert-queue-url')
+    client = boto3.client('sqs')
+    response = client.send_message(QueueUrl=queue_url, MessageBody=dumps(payload))
+    print("{} - Payload has been pushed to SQS".format(LOGPREFIX))
 
 if __name__ == "__main__":
     print("Listener to mqtt channel is starting...")
