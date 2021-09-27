@@ -105,6 +105,8 @@ def send_data_to_queue(payload):
     
     queue_url = get_parameter_value('serverless-alert-queue-url')
     client = boto3.client('sqs')
+    payload = str(payload, 'utf-8')
+    print("{} - Payload = {}".format(LOGPREFIX, payload))
     response = client.send_message(QueueUrl=queue_url, MessageBody=payload)
     print("{} - Payload has been pushed to SQS".format(LOGPREFIX))
 
